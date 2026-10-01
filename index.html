@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sri Lankan Agriculture</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-lang="en">
+
+  <!-- Two stacked layers so backgrounds cross-fade between screens -->
+  <div class="bg-image" id="bgA"></div>
+  <div class="bg-image" id="bgB"></div>
+
+  <main class="app">
+    <div class="trail" id="trail" aria-hidden="true">
+      <span></span><span></span><span></span><span></span>
+    </div>
+
+    <!-- Change the image for any screen via its data-bg attribute -->
+
+    <!-- Step 1: Language -->
+    <section class="screen" id="step-language" data-bg="assets/images/language.jpg">
+      <h1 tabindex="-1">භාෂාව තෝරන්න<br>மொழியைத் தேர்ந்தெடுக்கவும்<br>Choose your language</h1>
+      <div class="lang-grid">
+        <button class="lang-card" data-lang="si"><span class="glyph" lang="si">සිං</span><span class="name" lang="si">සිංහල</span></button>
+        <button class="lang-card" data-lang="ta"><span class="glyph" lang="ta">த</span><span class="name" lang="ta">தமிழ்</span></button>
+        <button class="lang-card" data-lang="en"><span class="glyph">Aa</span><span class="name">English</span></button>
+      </div>
+    </section>
+
+    <!-- Step 2: Province -->
+    <section class="screen" id="step-province" data-bg="assets/images/province.jpg">
+      <div class="panel">
+        <h2 tabindex="-1" data-i18n="provinceTitle"></h2>
+        <select id="sel-province"></select>
+        <div class="actions">
+          <button class="btn ghost" data-back="step-language" data-i18n="back"></button>
+          <button class="btn" id="next-province" data-i18n="next" disabled></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: District -->
+    <section class="screen" id="step-district" data-bg="assets/images/district.jpg">
+      <div class="panel">
+        <h2 tabindex="-1" data-i18n="districtTitle"></h2>
+        <select id="sel-district"></select>
+        <div class="actions">
+          <button class="btn ghost" data-back="step-province" data-i18n="back"></button>
+          <button class="btn" id="next-district" data-i18n="next" disabled></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 4: DS / Pradeshiya Sabha -->
+    <section class="screen" id="step-ds" data-bg="assets/images/ds.jpg">
+      <div class="panel">
+        <h2 tabindex="-1" data-i18n="dsTitle"></h2>
+        <select id="sel-ds"></select>
+        <div class="actions">
+          <button class="btn ghost" data-back="step-district" data-i18n="back"></button>
+          <button class="btn" id="next-ds" data-i18n="save" disabled></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 5: Summary -->
+    <section class="screen" id="step-summary" data-bg="assets/images/summary.jpg">
+      <div class="panel">
+        <h2 tabindex="-1" data-i18n="summaryTitle"></h2>
+        <dl class="summary" id="summary"></dl>
+        <div class="actions">
+          <button class="btn" id="open-dashboard" data-i18n="openDash"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Placeholder Home Dashboard -->
+    <section class="screen" id="dashboard" data-bg="assets/images/dashboard.jpg">
+      <div class="panel">
+        <h2 tabindex="-1" data-i18n="dashTitle"></h2>
+        <p id="dash-location" class="lead"></p>
+        <p class="lead" data-i18n="dashSub"></p>
+        <div class="actions">
+          <button class="btn ghost" id="reset" data-i18n="change"></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

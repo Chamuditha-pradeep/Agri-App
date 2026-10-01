@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap');
+
+:root {
+  --forest: #1f3d2b;
+  --moss: #4f7a43;
+  --leaf: #b9d19a;
+  --bark: #6b4f3a;
+  --clay: #a97c50;
+  --sand: #f1e9d6;
+  --ink: #23301f;
+  --font: 'Poppins', system-ui, sans-serif;
+}
+body[data-lang="si"] { --font: 'Noto Sans Sinhala', 'Poppins', sans-serif; }
+body[data-lang="ta"] { --font: 'Noto Sans Tamil', 'Poppins', sans-serif; }
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--forest);
+  color: var(--sand);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+[lang="si"] { font-family: 'Noto Sans Sinhala', sans-serif; }
+[lang="ta"] { font-family: 'Noto Sans Tamil', sans-serif; }
+
+/* ---------- Reusable full-screen background ----------
+   JS: setBackground('assets/images/x.jpg')  (called automatically from data-bg).
+   Or add class "bg-image" to any element and set style="--bg: url(...)" */
+.bg-image {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--bg, none) center / cover no-repeat, var(--forest);
+  opacity: 0;
+  transition: opacity .8s ease;
+}
+.bg-image.visible { opacity: 1; }
+.bg-image::after {                       /* dark green overlay for readable text */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20, 42, 28, .55) 0%, rgba(20, 42, 28, .72) 60%, rgba(31, 22, 14, .85) 100%);
+}
+
+/* ---------- Layout ---------- */
+.app {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 4.5rem 1.25rem 2rem;
+  position: relative;
+}
+.screen { display: none; width: 100%; max-width: 920px; }
+.screen.active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  animation: rise .7s cubic-bezier(.2, .7, .2, 1) both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: none; }
+}
+
+h1 {
+  font-size: clamp(1.4rem, 3.6vw, 2.1rem);
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.5;
+}
+h1:focus, h2:focus { outline: none; }
+h2 { font-size: clamp(1.3rem, 3vw, 1.7rem); font-weight: 600; margin-bottom: 1.25rem; }
+
+/* ---------- Progress trail ---------- */
+.trail {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: .6rem;
+  opacity: 0;
+  transition: opacity .4s;
+}
+.trail.show { opacity: 1; }
+.trail span {
+  width: 2.2rem;
+  height: .35rem;
+  border-radius: 1rem;
+  background: rgba(241, 233, 214, .3);
+  transition: background .4s, width .4s;
+}
+.trail span.done { background: var(--leaf); }
+.trail span.now { background: var(--sand); width: 3.2rem; }
+
+/* ---------- Language cards ---------- */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+}
+.lang-card {
+  font: inherit;
+  color: var(--ink);
+  background: var(--sand);
+  border: 0;
+  border-radius: 1.5rem 1.5rem 1.5rem .4rem;
+  padding: 2.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .28);
+  transition: transform .25s, background .25s, box-shadow .25s;
+}
+.lang-card .glyph {
+  width: 5rem; height: 5rem;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--moss);
+  color: var(--sand);
+  font-size: 1.9rem;
+  font-weight: 600;
+}
+.lang-card .name { font-size: 1.35rem; font-weight: 600; }
+.lang-card:hover { transform: translateY(-6px); background: #fff8e6; box-shadow: 0 20px 40px rgba(0, 0, 0, .35); }
+.lang-card:active { transform: translateY(-2px); }
+
+/* ---------- Panel, select, buttons ---------- */
+.panel {
+  width: 100%;
+  max-width: 520px;
+  padding: 2.25rem;
+  border-radius: 1.5rem;
+  background: rgba(241, 233, 214, .13);
+  border: 1px solid rgba(241, 233, 214, .28);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
+}
+select {
+  width: 100%;
+  font: inherit;
+  font-size: 1.05rem;
+  color: var(--ink);
+  background: var(--sand) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' fill='none' stroke='%236b4f3a' stroke-width='2'%3E%3Cpath d='M1 1l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 1.1rem center;
+  border: 2px solid transparent;
+  border-radius: 1rem;
+  padding: 1rem 2.8rem 1rem 1.2rem;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+select:focus-visible { outline: none; border-color: var(--leaf); }
+
+.actions { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.75rem; }
+.btn {
+  font: inherit;
+  font-weight: 600;
+  color: var(--sand);
+  background: var(--moss);
+  border: 2px solid var(--moss);
+  border-radius: 999px;
+  padding: .8rem 1.8rem;
+  cursor: pointer;
+  transition: background .2s, transform .2s, opacity .2s;
+}
+.btn:hover:not(:disabled) { background: #5d8b4f; transform: translateY(-2px); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn.ghost { background: transparent; border-color: rgba(241, 233, 214, .5); }
+.btn.ghost:hover:not(:disabled) { background: rgba(241, 233, 214, .12); }
+.btn:only-child { margin-left: auto; }
+.btn:focus-visible, .lang-card:focus-visible { outline: 3px solid var(--leaf); outline-offset: 3px; }
+
+/* ---------- Summary / dashboard ---------- */
+.summary { display: grid; gap: .9rem; }
+.summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid rgba(241, 233, 214, .25);
+}
+.summary dt { opacity: .75; }
+.summary dd { font-weight: 600; text-align: right; }
+.lead { opacity: .9; }
+.lead + .lead { margin-top: .5rem; }
+
+@media (max-width: 680px) {
+  .lang-grid { grid-template-columns: 1fr; }
+  .lang-card { flex-direction: row; padding: 1.2rem 1.5rem; justify-content: flex-start; }
+  .lang-card .glyph { width: 3.6rem; height: 3.6rem; font-size: 1.4rem; }
+  .panel { padding: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

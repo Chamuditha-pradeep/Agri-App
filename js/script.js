@@ -6,26 +6,29 @@
   const UI = {
     si: {
       provinceTitle: 'ඔබේ පළාත තෝරන්න', districtTitle: 'ඔබේ දිස්ත්‍රික්කය තෝරන්න',
-      dsTitle: 'ඔබේ ප්‍රාදේශීය ලේකම් කොට්ඨාශය තෝරන්න', choose: 'තෝරන්න…',
+      dsTitle: 'ඔබේ පළාත් පාලන ආයතනය තෝරන්න', dsNote: 'මෙම දිස්ත්‍රික්කයේ ආයතන ඉක්මනින් එකතු කෙරේ.',
+      typeMC: 'මහ නගර සභා', typeUC: 'නගර සභා', typePS: 'ප්‍රාදේශීය සභා', choose: 'තෝරන්න…',
       next: 'ඉදිරියට', back: 'ආපසු', save: 'සුරකින්න',
       summaryTitle: 'ඔබේ ස්ථානය සකසා ඇත', openDash: 'මුල් පිටුවට යන්න',
-      language: 'භාෂාව', province: 'පළාත', district: 'දිස්ත්‍රික්කය', ds: 'ප්‍රාදේශීය ලේකම් කොට්ඨාශය',
+      language: 'භාෂාව', province: 'පළාත', district: 'දිස්ත්‍රික්කය', ds: 'පළාත් පාලන ආයතනය',
       dashTitle: 'මුල් පිටුව', dashSub: 'ඔබේ කෘෂිකාර්මික මෙවලම් මෙහි දිස්වේ.', change: 'ස්ථානය වෙනස් කරන්න'
     },
     ta: {
       provinceTitle: 'உங்கள் மாகாணத்தைத் தேர்ந்தெடுக்கவும்', districtTitle: 'உங்கள் மாவட்டத்தைத் தேர்ந்தெடுக்கவும்',
-      dsTitle: 'உங்கள் பிரதேச செயலகப் பிரிவைத் தேர்ந்தெடுக்கவும்', choose: 'தேர்ந்தெடுக்கவும்…',
+      dsTitle: 'உங்கள் உள்ளூராட்சி மன்றத்தைத் தேர்ந்தெடுக்கவும்', dsNote: 'இந்த மாவட்டத்தின் மன்றங்கள் விரைவில் சேர்க்கப்படும்.',
+      typeMC: 'மாநகர சபைகள்', typeUC: 'நகர சபைகள்', typePS: 'பிரதேச சபைகள்', choose: 'தேர்ந்தெடுக்கவும்…',
       next: 'தொடரவும்', back: 'பின்செல்', save: 'சேமிக்கவும்',
       summaryTitle: 'உங்கள் இடம் அமைக்கப்பட்டது', openDash: 'முகப்புப் பக்கத்தைத் திறக்கவும்',
-      language: 'மொழி', province: 'மாகாணம்', district: 'மாவட்டம்', ds: 'பிரதேச செயலகப் பிரிவு',
+      language: 'மொழி', province: 'மாகாணம்', district: 'மாவட்டம்', ds: 'உள்ளூராட்சி மன்றம்',
       dashTitle: 'முகப்புப் பக்கம்', dashSub: 'உங்கள் விவசாயக் கருவிகள் இங்கே தோன்றும்.', change: 'இடத்தை மாற்றவும்'
     },
     en: {
       provinceTitle: 'Select your province', districtTitle: 'Select your district',
-      dsTitle: 'Select your DS division', choose: 'Choose…',
+      dsTitle: 'Select your local authority', dsNote: 'Local authorities for this district are being added soon.',
+      typeMC: 'Municipal Councils', typeUC: 'Urban Councils', typePS: 'Pradeshiya Sabhas', choose: 'Choose…',
       next: 'Continue', back: 'Back', save: 'Save',
       summaryTitle: 'Your location is set', openDash: 'Open dashboard',
-      language: 'Language', province: 'Province', district: 'District', ds: 'DS division',
+      language: 'Language', province: 'Province', district: 'District', ds: 'Local authority',
       dashTitle: 'Home Dashboard', dashSub: 'Your farming tools will appear here.', change: 'Change location'
     }
   };
@@ -60,7 +63,7 @@
     $$('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
     fillSelect('#sel-province', 'Province', rows, state.province);
     fillSelect('#sel-district', 'District', districtRows(), state.district);
-    fillSelect('#sel-ds', 'DS', dsRows(), state.ds);
+    refreshDs();
   }
 
   /* ---------- Data helpers ---------- */
@@ -70,14 +73,25 @@
   function fillSelect(sel, level, source, selected) {
     const el = $(sel);
     const seen = new Map();
-    source.forEach((r) => { if (!seen.has(r[`${level}_English`])) seen.set(r[`${level}_English`], r); });
-    const locale = state.lang === 'en' ? 'en' : state.lang;
-    const items = [...seen.values()].sort((a, b) => label(a, level, state.lang).localeCompare(label(b, level, state.lang), locale));
-    el.innerHTML = `<option value="" disabled ${selected ? '' : 'selected'}>${t('choose')}</option>` +
-      items.map((r) => {
-        const val = r[`${level}_English`];
-        return `<option value="${val.replace(/"/g, '&quot;')}" ${val === selected ? 'selected' : ''}>${label(r, level, state.lang)}</option>`;
-      }).join('');
+    source.forEach((r) => { const k = r[`${level}_English`]; if (k && !seen.has(k)) seen.set(k, r); });
+    const sortFn = (x, y) => label(x, level, state.lang).localeCompare(label(y, level, state.lang), state.lang);
+    const opt = (r) => {
+      const val = r[`${level}_English`];
+      return `<option value="${val.replace(/"/g, '&quot;')}" ${val === selected ? 'selected' : ''}>${label(r, level, state.lang)}</option>`;
+    };
+    const items = [...seen.values()];
+    let html = `<option value="" disabled ${selected ? '' : 'selected'}>${t('choose')}</option>`;
+    if (level === 'DS') {   // group: Municipal / Urban / Pradeshiya Sabha
+      ['MC', 'UC', 'PS'].forEach((ty) => {
+        const g = items.filter((r) => r.DS_Type === ty).sort(sortFn);
+        if (g.length) html += `<optgroup label="${t('type' + ty)}">${g.map(opt).join('')}</optgroup>`;
+      });
+    } else html += items.sort(sortFn).map(opt).join('');
+    el.innerHTML = html;
+  }
+  function refreshDs() {
+    fillSelect('#sel-ds', 'DS', dsRows(), state.ds);
+    $('#ds-note').hidden = !state.district || dsRows().some((r) => r.DS_English);
   }
 
   /* ---------- Step navigation ---------- */
@@ -155,7 +169,7 @@
 
   $('#sel-district').addEventListener('change', (e) => {
     state.district = e.target.value; state.ds = '';
-    fillSelect('#sel-ds', 'DS', dsRows(), '');
+    refreshDs();
     $('#next-ds').disabled = true;
     $('#next-district').disabled = false;
   });

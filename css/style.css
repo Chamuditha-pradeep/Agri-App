@@ -32,7 +32,11 @@ body {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: var(--bg, none) center / cover no-repeat, var(--forest);
+  background:
+    var(--bg, none) center / cover no-repeat,
+    radial-gradient(circle at 20% 15%, #5f8a4c 0%, transparent 45%),
+    radial-gradient(circle at 85% 90%, #8a6a45 0%, transparent 50%),
+    var(--forest);
   opacity: 0;
   transition: opacity .8s ease;
 }
@@ -200,3 +204,8 @@ select:focus-visible { outline: none; border-color: var(--leaf); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+.note { margin-top: .9rem; font-size: .95rem; color: var(--leaf); }
+.note[hidden] { display: none; }
+select optgroup { font-weight: 600; color: var(--bark); }
+select option { font-weight: 400; color: var(--ink); }

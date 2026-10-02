@@ -17,10 +17,11 @@
       <span></span><span></span><span></span><span></span>
     </div>
 
-    <!-- Change the image for any screen via its data-bg attribute -->
+    <!-- Change the image for any screen via its data-bg attribute.
+         Language, Province and District share home.jpg; ds/summary/dashboard have their own. -->
 
     <!-- Step 1: Language -->
-    <section class="screen" id="step-language" data-bg="assets/images/language.jpg">
+    <section class="screen" id="step-language" data-bg="assets/images/home.jpg">
       <h1 tabindex="-1">භාෂාව තෝරන්න<br>மொழியைத் தேர்ந்தெடுக்கவும்<br>Choose your language</h1>
       <div class="lang-grid">
         <button class="lang-card" data-lang="si"><span class="glyph" lang="si">සිං</span><span class="name" lang="si">සිංහල</span></button>
@@ -30,7 +31,7 @@
     </section>
 
     <!-- Step 2: Province -->
-    <section class="screen" id="step-province" data-bg="assets/images/province.jpg">
+    <section class="screen" id="step-province" data-bg="assets/images/home.jpg">
       <div class="panel">
         <h2 tabindex="-1" data-i18n="provinceTitle"></h2>
         <select id="sel-province"></select>
@@ -42,7 +43,7 @@
     </section>
 
     <!-- Step 3: District -->
-    <section class="screen" id="step-district" data-bg="assets/images/district.jpg">
+    <section class="screen" id="step-district" data-bg="assets/images/home.jpg">
       <div class="panel">
         <h2 tabindex="-1" data-i18n="districtTitle"></h2>
         <select id="sel-district"></select>
@@ -58,6 +59,7 @@
       <div class="panel">
         <h2 tabindex="-1" data-i18n="dsTitle"></h2>
         <select id="sel-ds"></select>
+        <p class="note" id="ds-note" data-i18n="dsNote" hidden></p>
         <div class="actions">
           <button class="btn ghost" data-back="step-district" data-i18n="back"></button>
           <button class="btn" id="next-ds" data-i18n="save" disabled></button>

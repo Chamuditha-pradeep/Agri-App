@@ -78,12 +78,13 @@
       </div>
     </section>
 
-    <!-- Placeholder Home Dashboard -->
+    <!-- Home Dashboard: weather, soil, crops (js/dashboard.js) -->
     <section class="screen" id="dashboard" data-bg="assets/images/dashboard.jpg">
-      <div class="panel">
+      <div class="panel wide">
         <h2 tabindex="-1" data-i18n="dashTitle"></h2>
         <p id="dash-location" class="lead"></p>
-        <p class="lead" data-i18n="dashSub"></p>
+        <div class="tabs" id="dash-tabs"></div>
+        <div id="dash-body"></div>
         <div class="actions">
           <button class="btn ghost" id="reset" data-i18n="change"></button>
         </div>
@@ -92,6 +93,9 @@
   </main>
 
   <script src="js/data.js"></script>
-  <script src="js/script.js"></script>
+  <script src="js/zones.js"></script>
+  <script src="js/crops.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

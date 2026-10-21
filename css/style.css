@@ -34,8 +34,8 @@ body {
   z-index: -1;
   background:
     var(--bg, none) center / cover no-repeat,
-    radial-gradient(circle at 20% 15%, #5f8a4c 0%, transparent 45%),
-    radial-gradient(circle at 85% 90%, #8a6a45 0%, transparent 50%),
+    radial-gradient(circle at 20% 15%, #0015f8 0%, transparent 45%),
+    radial-gradient(circle at 85% 90%, #d4ff00 0%, transparent 50%),
     var(--forest);
   opacity: 0;
   transition: opacity .8s ease;
@@ -209,3 +209,27 @@ select:focus-visible { outline: none; border-color: var(--leaf); }
 .note[hidden] { display: none; }
 select optgroup { font-weight: 600; color: var(--bark); }
 select option { font-weight: 400; color: var(--ink); }
+
+/* ---------- Dashboard ---------- */
+.panel.wide { max-width: 760px; }
+.tabs { display: flex; gap: .5rem; margin: 1rem 0; }
+.tabs button { font: inherit; color: var(--sand); background: rgba(241,233,214,.12); border: 0; border-radius: 999px; padding: .5rem 1.2rem; cursor: pointer; }
+.tabs button.on { background: var(--moss); font-weight: 600; }
+#dash-body h3 { font-size: 1.1rem; margin: 1.4rem 0 .6rem; }
+.now { font-size: 1.6rem; display: flex; align-items: center; gap: .6rem; }
+.now span { font-size: 1rem; opacity: .85; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: .7rem; margin-top: 1rem; }
+.stat { background: rgba(241,233,214,.12); border-radius: 1rem; padding: .8rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.stat .v { font-weight: 600; font-size: 1.15rem; }
+.stat .l { font-size: .8rem; opacity: .8; }
+.forecast { display: grid; grid-template-columns: repeat(5, 1fr); gap: .5rem; }
+.day { background: rgba(241,233,214,.1); border-radius: .9rem; padding: .6rem .3rem; text-align: center; display: flex; flex-direction: column; font-size: .85rem; }
+.crop { background: rgba(241,233,214,.1); border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; }
+.crop header { display: flex; gap: .8rem; align-items: center; margin-bottom: .6rem; }
+.crop header .ic { font-size: 2rem; }
+.crop h3 { margin: 0; }
+.crop small { opacity: .85; }
+details { border-top: 1px solid rgba(241,233,214,.2); padding: .6rem 0; }
+summary { cursor: pointer; font-weight: 600; }
+details p { margin-top: .5rem; opacity: .92; }
+@media (max-width: 680px) { .forecast { grid-template-columns: repeat(3, 1fr); } }

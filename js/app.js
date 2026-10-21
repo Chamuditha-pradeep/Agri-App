@@ -149,6 +149,7 @@
   function showDashboard(rec) {
     $('#dash-location').textContent = `${rec.ds[rec.language]}, ${rec.district[rec.language]}`;
     show('dashboard');
+    if (window.renderDashboard) window.renderDashboard(rec);
   }
 
   /* ---------- Events ---------- */

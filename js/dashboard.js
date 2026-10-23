@@ -24,6 +24,10 @@
     lessSuited: ['ඔබේ කලාපයට අඩුවෙන් සුදුසුයි', 'உங்கள் வலயத்திற்கு குறைவான பொருத்தம்', 'Less suited to your zone'],
     more: ['තවත් බෝග ඉක්මනින් එකතු කෙරේ.', 'மேலும் பயிர்கள் விரைவில் சேர்க்கப்படும்.', 'More crops are being added.'],
     caution: ['රසායන ද්‍රව්‍ය භාවිතයේදී කෘෂිකර්ම දෙපාර්තමේන්තුවේ නිර්දේශ සහ ලේබලයේ උපදෙස් අනුගමනය කරන්න.', 'இரசாயனங்களைப் பயன்படுத்தும்போது விவசாயத் திணைக்கள பரிந்துரைகளையும் லேபிள் அறிவுறுத்தல்களையும் பின்பற்றவும்.', 'For chemicals, follow Department of Agriculture recommendations and the product label.'],
+    mTitle: ['බෙහෙත් සහ ද්‍රව්‍ය', 'மருந்துகள் & பொருட்கள்', 'Medicines & products'],
+    tchemical: ['රසායනික', 'இரசாயன', 'Chemical'],
+    torganic: ['දේශීය / කාබනික', 'இயற்கை / சேதன', 'Natural / organic'],
+    tfertilizer: ['පොහොර', 'உரம்', 'Fertilizer'],
     grow: ['වගා කරන ආකාරය', 'பயிரிடும் முறை', 'How to grow'],
     fertChem: ['රසායනික පොහොර', 'இரசாயன உரம்', 'Chemical fertilizer'],
     fertOrg: ['කාබනික පොහොර', 'சேதன உரம்', 'Organic fertilizer'],
@@ -45,6 +49,21 @@
     if (code <= 48) return ['🌫️', 'fog'];
     if (code >= 95) return ['⛈️', 'storm'];
     return ['🌧️', 'rain'];
+  }
+
+  const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const okImg = (u) => typeof u === 'string' && (u.startsWith('data:image/') || u.startsWith('assets/') || u.startsWith('data/'));
+  let remote = [];
+  fetch('data/crops.json').then((r) => (r.ok ? r.json() : [])).then((j) => {
+    remote = Array.isArray(j) ? j : [];
+    if (window.__redrawCrops) window.__redrawCrops();
+  }).catch(() => {});
+  function allCrops() {   // built-in + data/crops.json + this browser's admin drafts (later ones override by id)
+    let local = [];
+    try { local = JSON.parse(localStorage.getItem('agriCustomCrops')) || []; } catch (e) { /* ignore */ }
+    const map = new Map();
+    [...AGRI_CROPS, ...remote, ...local].forEach((c) => c && c.id && map.set(c.id, c));
+    return [...map.values()];
   }
 
   window.renderDashboard = (rec) => {
@@ -69,16 +88,24 @@
     }
 
     function cropsView() {
-      const cards = AGRI_CROPS.map((c) => {
-        const ok = c.zones.includes(zoneKey);
-        const secs = SECTIONS.map((s) => `<details><summary>${t(s)}</summary><p>${c[s][i]}</p></details>`).join('');
-        return `<article class="crop"><header><span class="ic">${c.icon}</span><div><h3>${c.name[i]}</h3>
-          <small>${c.season[i]} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div></header>${secs}</article>`;
+      const pick = (arr) => (arr && (arr[i] || arr[2] || arr[0])) || '';
+      const cards = allCrops().map((c) => {
+        const ok = (c.zones || []).includes(zoneKey);
+        const secs = SECTIONS.filter((k) => pick(c[k])).map((k) => `<details><summary>${t(k)}</summary><p>${esc(pick(c[k]))}</p></details>`).join('');
+        const meds = (c.medicines || []).map((m) => `<div class="mrow">${okImg(m.photo) ? `<img src="${m.photo}" alt="">` : ''}
+          <div><b>${esc(pick(m.name))}</b> <small>· ${t('t' + (m.type || 'chemical'))}</small><p>${esc(pick(m.use))}</p></div></div>`).join('');
+        const pic = okImg(c.photo) ? `<img class="cphoto" src="${c.photo}" alt="">` : '';
+        return `<article class="crop">${pic}<header><span class="ic">${esc(c.icon || '🌱')}</span><div><h3>${esc(pick(c.name))}</h3>
+          <small>${esc(pick(c.season))} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div></header>${secs}
+          ${meds ? `<details><summary>💊 ${t('mTitle')}</summary>${meds}</details>` : ''}</article>`;
       }).join('');
       return `${cards}<p class="note">${t('caution')}</p><p class="note">${t('more')}</p>`;
     }
 
+    let tabNow = 'climate';
+    window.__redrawCrops = () => { if (tabNow === 'crops') draw('crops'); };
     function draw(tab) {
+      tabNow = tab;
       [...tabs.children].forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
       body.innerHTML = tab === 'climate' ? climateView() : cropsView();
     }

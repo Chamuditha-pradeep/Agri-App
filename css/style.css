@@ -34,8 +34,8 @@ body {
   z-index: -1;
   background:
     var(--bg, none) center / cover no-repeat,
-    radial-gradient(circle at 20% 15%, #0015f8 0%, transparent 45%),
-    radial-gradient(circle at 85% 90%, #d4ff00 0%, transparent 50%),
+    radial-gradient(circle at 20% 15%, #5f8a4c 0%, transparent 45%),
+    radial-gradient(circle at 85% 90%, #8a6a45 0%, transparent 50%),
     var(--forest);
   opacity: 0;
   transition: opacity .8s ease;
@@ -233,3 +233,8 @@ details { border-top: 1px solid rgba(241,233,214,.2); padding: .6rem 0; }
 summary { cursor: pointer; font-weight: 600; }
 details p { margin-top: .5rem; opacity: .92; }
 @media (max-width: 680px) { .forecast { grid-template-columns: repeat(3, 1fr); } }
+
+.cphoto { width: 100%; height: 160px; object-fit: cover; border-radius: .8rem; margin-bottom: .7rem; }
+.mrow { display: flex; gap: .8rem; padding: .6rem 0; align-items: flex-start; }
+.mrow img { width: 64px; height: 64px; object-fit: cover; border-radius: .6rem; flex: none; }
+.mrow p { margin: .2rem 0 0; }

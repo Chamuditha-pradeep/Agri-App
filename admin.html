@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin – Agriculture App</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { padding: 1.5rem 1rem 4rem; background: var(--forest); }
+    .wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 1.2rem; }
+    .card { background: rgba(241,233,214,.1); border: 1px solid rgba(241,233,214,.25); border-radius: 1.2rem; padding: 1.2rem; }
+    h1 { font-size: 1.5rem; } h2 { font-size: 1.15rem; margin: 0 0 .8rem; }
+    fieldset { border: 1px solid rgba(241,233,214,.25); border-radius: .9rem; padding: .7rem; margin: 0 0 .8rem; display: grid; gap: .5rem; }
+    legend { padding: 0 .4rem; font-weight: 600; }
+    input[type=text], textarea, .card select { width: 100%; font: inherit; color: var(--ink); background: var(--sand); border: 2px solid transparent; border-radius: .7rem; padding: .6rem .8rem; }
+    .card select { background-image: none; }
+    textarea { resize: vertical; }
+    .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+    .zones label { margin-right: 1rem; }
+    .thumb { width: 90px; height: 70px; object-fit: cover; border-radius: .6rem; background: rgba(0,0,0,.25); }
+    .med { border: 1px dashed rgba(241,233,214,.4); border-radius: 1rem; padding: .8rem; margin-bottom: .8rem; }
+    .item { display: flex; gap: .8rem; align-items: center; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid rgba(241,233,214,.2); }
+    .btn.small { padding: .4rem 1rem; font-size: .9rem; }
+    .btn.danger { background: #8a3b2e; border-color: #8a3b2e; }
+    a { color: var(--leaf); }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌿 Admin – බෝග සහ බෙහෙත් එකතු කිරීම</h1>
+  <p class="note">මෙහි සුරකින දත්ත ඔයාගේ browser එකේ පමණක් තියෙනවා. සියලු ගොවීන්ට පෙන්වීමට <b>Export</b> කර ලැබෙන <code>crops.json</code> එක project එකේ <code>data/</code> folder එකට දමන්න.</p>
+
+  <div class="card">
+    <h2>සුරකින ලද බෝග (Saved crops)</h2>
+    <div id="list"></div>
+    <div class="row" style="margin-top:.8rem">
+      <button class="btn small" id="export">⬇ Export crops.json</button>
+      <label class="btn small ghost" style="cursor:pointer">⬆ Import<input type="file" id="import" accept=".json" hidden></label>
+      <a href="index.html">← App</a>
+    </div>
+  </div>
+
+  <form class="card" id="form" autocomplete="off">
+    <h2 id="formTitle">අලුත් බෝගයක් (New crop)</h2>
+    <div class="row"><input type="text" id="icon" placeholder="Emoji 🍅" style="max-width:130px"> <span id="photoBox" class="row"></span></div>
+    <div id="fields"></div>
+    <fieldset class="zones"><legend>සුදුසු කලාප (Suited zones)</legend>
+      <div class="row">
+        <label><input type="checkbox" value="WET"> තෙත් / Wet</label>
+        <label><input type="checkbox" value="INT"> අතරමැදි / Intermediate</label>
+        <label><input type="checkbox" value="DRY"> වියළි / Dry</label>
+      </div>
+    </fieldset>
+    <h2>බෙහෙත් / පොහොර (Medicines &amp; products)</h2>
+    <div id="meds"></div>
+    <div class="row">
+      <button type="button" class="btn small ghost" id="addMed">+ බෙහෙතක් එකතු කරන්න</button>
+    </div>
+    <div class="row" style="margin-top:1rem">
+      <button class="btn" type="submit">සුරකින්න (Save)</button>
+      <button class="btn ghost" type="button" id="reset">Clear form</button>
+    </div>
+  </form>
+</div>
+<script src="js/admin.js"></script>
+</body>
+</html>

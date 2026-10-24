@@ -238,3 +238,12 @@ details p { margin-top: .5rem; opacity: .92; }
 .mrow { display: flex; gap: .8rem; padding: .6rem 0; align-items: flex-start; }
 .mrow img { width: 64px; height: 64px; object-fit: cover; border-radius: .6rem; flex: none; }
 .mrow p { margin: .2rem 0 0; }
+
+.csearch { width: 100%; font: inherit; color: var(--ink); background: var(--sand); border: 2px solid transparent; border-radius: 999px; padding: .8rem 1.2rem; margin-bottom: 1rem; }
+.csearch:focus-visible { outline: none; border-color: var(--leaf); }
+.cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .8rem; }
+.cbtn { font: inherit; color: var(--sand); background: rgba(241,233,214,.12); border: 1px solid rgba(241,233,214,.25); border-radius: 1rem; padding: .7rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .5rem; transition: transform .2s, background .2s; }
+.cbtn:hover { transform: translateY(-3px); background: rgba(241,233,214,.2); }
+.cbtn img { width: 100%; height: 80px; object-fit: cover; border-radius: .7rem; }
+.cbtn .ic { font-size: 2.2rem; line-height: 80px; }
+.btn.small { padding: .4rem 1rem; font-size: .9rem; margin-bottom: .8rem; }

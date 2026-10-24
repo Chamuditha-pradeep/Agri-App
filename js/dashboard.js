@@ -24,6 +24,10 @@
     lessSuited: ['ඔබේ කලාපයට අඩුවෙන් සුදුසුයි', 'உங்கள் வலயத்திற்கு குறைவான பொருத்தம்', 'Less suited to your zone'],
     more: ['තවත් බෝග ඉක්මනින් එකතු කෙරේ.', 'மேலும் பயிர்கள் விரைவில் சேர்க்கப்படும்.', 'More crops are being added.'],
     caution: ['රසායන ද්‍රව්‍ය භාවිතයේදී කෘෂිකර්ම දෙපාර්තමේන්තුවේ නිර්දේශ සහ ලේබලයේ උපදෙස් අනුගමනය කරන්න.', 'இரசாயனங்களைப் பயன்படுத்தும்போது விவசாயத் திணைக்கள பரிந்துரைகளையும் லேபிள் அறிவுறுத்தல்களையும் பின்பற்றவும்.', 'For chemicals, follow Department of Agriculture recommendations and the product label.'],
+    search: ['බෝගය සොයන්න…', 'பயிரைத் தேடுங்கள்…', 'Search a crop…'],
+    noCrops: ['තවම බෝග එකතු කර නැත.', 'இன்னும் பயிர்கள் சேர்க்கப்படவில்லை.', 'No crops added yet.'],
+    noResults: ['ප්‍රතිඵල නැත.', 'முடிவுகள் இல்லை.', 'No results.'],
+    back: ['← ආපසු', '← பின்செல்', '← Back'],
     mTitle: ['බෙහෙත් සහ ද්‍රව්‍ය', 'மருந்துகள் & பொருட்கள்', 'Medicines & products'],
     tchemical: ['රසායනික', 'இரசாயன', 'Chemical'],
     torganic: ['දේශීය / කාබනික', 'இயற்கை / சேதன', 'Natural / organic'],
@@ -87,19 +91,35 @@
       return `<div id="wx">${weatherHtml || `<p class="lead">${t('loading')}</p>`}</div>${soil}`;
     }
 
+    let openId = null, query = '';
+    const pick = (arr) => (arr && (arr[i] || arr[2] || arr[0])) || '';
+
+    function cropCard(c) {
+      const ok = (c.zones || []).includes(zoneKey);
+      const secs = SECTIONS.filter((k) => pick(c[k])).map((k) => `<details><summary>${t(k)}</summary><p>${esc(pick(c[k]))}</p></details>`).join('');
+      const meds = (c.medicines || []).map((m) => `<div class="mrow">${okImg(m.photo) ? `<img src="${m.photo}" alt="">` : ''}
+        <div><b>${esc(pick(m.name))}</b> <small>· ${t('t' + (m.type || 'chemical'))}</small><p>${esc(pick(m.use))}</p></div></div>`).join('');
+      const pic = okImg(c.photo) ? `<img class="cphoto" src="${c.photo}" alt="">` : '';
+      return `<article class="crop">${pic}<header><span class="ic">${esc(c.icon || '🌱')}</span><div><h3>${esc(pick(c.name))}</h3>
+        <small>${esc(pick(c.season))} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div></header>${secs}
+        ${meds ? `<details><summary>💊 ${t('mTitle')}</summary>${meds}</details>` : ''}</article>`;
+    }
+    function listHtml() {
+      const crops = allCrops();
+      if (!crops.length) return `<p class="note">${t('noCrops')}</p>`;
+      const q = query.trim().toLowerCase();
+      const hit = crops.filter((c) => !q || (c.name || []).some((n) => String(n).toLowerCase().includes(q)));
+      if (!hit.length) return `<p class="note">${t('noResults')}</p>`;
+      return `<div class="cgrid">${hit.map((c) => `<button class="cbtn" data-id="${esc(c.id)}">${okImg(c.photo)
+        ? `<img src="${c.photo}" alt="">` : `<span class="ic">${esc(c.icon || '🌱')}</span>`}<span>${esc(pick(c.name))}</span></button>`).join('')}</div>`;
+    }
     function cropsView() {
-      const pick = (arr) => (arr && (arr[i] || arr[2] || arr[0])) || '';
-      const cards = allCrops().map((c) => {
-        const ok = (c.zones || []).includes(zoneKey);
-        const secs = SECTIONS.filter((k) => pick(c[k])).map((k) => `<details><summary>${t(k)}</summary><p>${esc(pick(c[k]))}</p></details>`).join('');
-        const meds = (c.medicines || []).map((m) => `<div class="mrow">${okImg(m.photo) ? `<img src="${m.photo}" alt="">` : ''}
-          <div><b>${esc(pick(m.name))}</b> <small>· ${t('t' + (m.type || 'chemical'))}</small><p>${esc(pick(m.use))}</p></div></div>`).join('');
-        const pic = okImg(c.photo) ? `<img class="cphoto" src="${c.photo}" alt="">` : '';
-        return `<article class="crop">${pic}<header><span class="ic">${esc(c.icon || '🌱')}</span><div><h3>${esc(pick(c.name))}</h3>
-          <small>${esc(pick(c.season))} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div></header>${secs}
-          ${meds ? `<details><summary>💊 ${t('mTitle')}</summary>${meds}</details>` : ''}</article>`;
-      }).join('');
-      return `${cards}<p class="note">${t('caution')}</p><p class="note">${t('more')}</p>`;
+      if (openId) {
+        const c = allCrops().find((x) => x.id === openId);
+        if (c) return `<button class="btn ghost small cback">${t('back')}</button>${cropCard(c)}<p class="note">${t('caution')}</p>`;
+        openId = null;
+      }
+      return `<input type="search" class="csearch" placeholder="${t('search')}" value="${esc(query)}"><div id="clist">${listHtml()}</div>`;
     }
 
     let tabNow = 'climate';
@@ -111,6 +131,14 @@
     }
     tabs.innerHTML = `<button data-tab="climate">${t('tabClimate')}</button><button data-tab="crops">${t('tabCrops')}</button>`;
     tabs.onclick = (e) => { if (e.target.dataset.tab) draw(e.target.dataset.tab); };
+    body.oninput = (e) => {
+      if (e.target.classList.contains('csearch')) { query = e.target.value; document.getElementById('clist').innerHTML = listHtml(); }
+    };
+    body.onclick = (e) => {
+      const b = e.target.closest('.cbtn');
+      if (b) { openId = b.dataset.id; draw('crops'); window.scrollTo(0, 0); }
+      if (e.target.closest('.cback')) { openId = null; draw('crops'); }
+    };
     draw('climate');
 
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +

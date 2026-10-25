@@ -21,7 +21,7 @@
          Language, Province and District share home.jpg; ds/summary/dashboard have their own. -->
 
     <!-- Step 1: Language -->
-    <section class="screen" id="step-language" data-bg="assets/images/home.jpg">
+    <section class="screen" id="step-language" data-accent="#4f7a43" data-bg="assets/images/home.jpg">
       <h1 tabindex="-1">භාෂාව තෝරන්න<br>மொழியைத் தேர்ந்தெடுக்கவும்<br>Choose your language</h1>
       <div class="lang-grid">
         <button class="lang-card" data-lang="si"><span class="glyph" lang="si">සිං</span><span class="name" lang="si">සිංහල</span></button>
@@ -31,10 +31,11 @@
     </section>
 
     <!-- Step 2: Province -->
-    <section class="screen" id="step-province" data-bg="assets/images/home.jpg">
-      <div class="panel">
+    <section class="screen" id="step-province" data-accent="#b0802f" data-bg="assets/images/home.jpg">
+      <div class="panel wide">
         <h2 tabindex="-1" data-i18n="provinceTitle"></h2>
-        <select id="sel-province"></select>
+        <select id="sel-province" hidden></select>
+        <div class="pgrid" id="cards-province"></div>
         <div class="actions">
           <button class="btn ghost" data-back="step-language" data-i18n="back"></button>
           <button class="btn" id="next-province" data-i18n="next" disabled></button>
@@ -43,10 +44,11 @@
     </section>
 
     <!-- Step 3: District -->
-    <section class="screen" id="step-district" data-bg="assets/images/home.jpg">
-      <div class="panel">
+    <section class="screen" id="step-district" data-accent="#2f6f73" data-bg="assets/images/home.jpg">
+      <div class="panel wide">
         <h2 tabindex="-1" data-i18n="districtTitle"></h2>
-        <select id="sel-district"></select>
+        <select id="sel-district" hidden></select>
+        <div class="pgrid" id="cards-district"></div>
         <div class="actions">
           <button class="btn ghost" data-back="step-province" data-i18n="back"></button>
           <button class="btn" id="next-district" data-i18n="next" disabled></button>
@@ -55,7 +57,7 @@
     </section>
 
     <!-- Step 4: DS / Pradeshiya Sabha -->
-    <section class="screen" id="step-ds" data-bg="assets/images/ds.jpg">
+    <section class="screen" id="step-ds" data-accent="#a4573a" data-bg="assets/images/ds.jpg">
       <div class="panel">
         <h2 tabindex="-1" data-i18n="dsTitle"></h2>
         <select id="sel-ds"></select>
@@ -68,7 +70,7 @@
     </section>
 
     <!-- Step 5: Summary -->
-    <section class="screen" id="step-summary" data-bg="assets/images/summary.jpg">
+    <section class="screen" id="step-summary" data-accent="#5d8b4f" data-bg="assets/images/summary.jpg">
       <div class="panel">
         <h2 tabindex="-1" data-i18n="summaryTitle"></h2>
         <dl class="summary" id="summary"></dl>
@@ -79,7 +81,7 @@
     </section>
 
     <!-- Home Dashboard: weather, soil, crops (js/dashboard.js) -->
-    <section class="screen" id="dashboard" data-bg="assets/images/dashboard.jpg">
+    <section class="screen" id="dashboard" data-accent="#3f7d6b" data-bg="assets/images/dashboard.jpg">
       <div class="panel wide">
         <h2 tabindex="-1" data-i18n="dashTitle"></h2>
         <p id="dash-location" class="lead"></p>

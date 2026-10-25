@@ -46,6 +46,7 @@
   let activeBg = 'bgA';
   function setBackground(url) {
     if (!url) return;
+    window.__bg = url;
     const next = $(activeBg === 'bgA' ? '#bgB' : '#bgA');
     const prev = $('#' + activeBg);
     next.style.setProperty('--bg', `url("${url}")`);
@@ -88,17 +89,54 @@
       });
     } else html += items.sort(sortFn).map(opt).join('');
     el.innerHTML = html;
+    buildCards(sel);
   }
+  /* Province / district shown as coloured cards (the <select> stays hidden underneath) */
+  const PAL = ['#4f7a43', '#a97c50', '#2f6f73', '#7a5c3a', '#5d8b4f', '#8a6a2f', '#3f6b58', '#9b5f3f', '#6b7a3a'];
+  function buildCards(sel) {
+    const box = document.getElementById(sel.replace('#sel-', 'cards-'));
+    if (!box) return;
+    box.innerHTML = [...$(sel).options].filter((o) => o.value).map((o, i) =>
+      `<button type="button" class="pcard${o.selected ? ' on' : ''}" data-v="${o.value.replace(/"/g, '&quot;')}" style="--c:${PAL[i % PAL.length]}"><span class="dot"></span><span>${o.textContent}</span></button>`).join('');
+  }
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('.pcard');
+    if (!b) return;
+    const el = $('#' + b.parentElement.id.replace('cards-', 'sel-'));
+    el.value = b.dataset.v;
+    el.dispatchEvent(new Event('change'));
+    [...b.parentElement.children].forEach((c) => c.classList.toggle('on', c === b));
+  });
+
   function refreshDs() {
     fillSelect('#sel-ds', 'DS', dsRows(), state.ds);
     $('#ds-note').hidden = !state.district || dsRows().some((r) => r.DS_English);
   }
 
   /* ---------- Step navigation ---------- */
+  /* Background follows the most specific selection made so far (admin uploads them in Firestore) */
+  function applyBg(id) {
+    const P = state.province, D = state.district, S = state.ds;
+    const chain = id === 'step-district' ? [['province', P]]
+      : id === 'step-ds' ? [['district', D], ['province', P]]
+      : (id === 'step-summary' || id === 'dashboard') ? [['ds', D, S], ['district', D], ['province', P]] : [];
+    const valid = chain.filter((c) => c.slice(1).every(Boolean));
+    const bg = window.AgriFB && window.AgriFB.bg;
+    if (!bg || !valid.length) return;
+    bg.resolve(valid).then((u) => {
+      const a = document.querySelector('.screen.active');
+      if (u && a && a.id === id) setBackground(u);
+    });
+  }
+  window.addEventListener('agri-ready', () => { const a = document.querySelector('.screen.active'); if (a) applyBg(a.id); });
+
   function show(id) {
     $$('.screen').forEach((s) => s.classList.remove('active'));
     const screen = document.getElementById(id);
     setBackground(screen.dataset.bg);
+    if (screen.dataset.accent) document.documentElement.style.setProperty('--accent', screen.dataset.accent);
+    else document.documentElement.style.removeProperty('--accent');
+    applyBg(id);
     screen.classList.add('active');
     screen.querySelector('h1, h2')?.focus({ preventScroll: true });
     window.scrollTo(0, 0);
@@ -148,6 +186,7 @@
   }
   function showDashboard(rec) {
     $('#dash-location').textContent = `${rec.ds[rec.language]}, ${rec.district[rec.language]}`;
+    Object.assign(state, { province: rec.province.en, district: rec.district.en, ds: rec.ds.en });
     show('dashboard');
     if (window.renderDashboard) window.renderDashboard(rec);
   }

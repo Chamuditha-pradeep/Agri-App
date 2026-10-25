@@ -40,6 +40,19 @@
     </div>
   </div>
 
+  <div class="card" id="bgcard">
+    <h2>🖼 පසුබිම් පින්තූර (Background photos)</h2>
+    <p class="note" id="bgmsg">Admin ලෙස ඇතුල් වන්න (උඩ දකුණේ). Firestore → users → ඔයාගේ document එකේ <code>role</code> අගය <b>admin</b> කරන්න.</p>
+    <div id="bgtools" hidden>
+      <div class="row">
+        <select id="bglevel"><option value="province">පළාත / Province</option><option value="district">දිස්ත්‍රික්කය / District</option><option value="ds">ආයතනය / Local authority</option></select>
+        <select id="bgplace" style="flex:1"></select>
+      </div>
+      <div class="row" style="margin-top:.6rem"><input type="file" id="bgfile" accept="image/*"><button class="btn small" id="bgsave">Upload</button></div>
+      <div id="bglist" style="margin-top:1rem"></div>
+    </div>
+  </div>
+
   <form class="card" id="form" autocomplete="off">
     <h2 id="formTitle">අලුත් බෝගයක් (New crop)</h2>
     <div class="row"><input type="text" id="icon" placeholder="Emoji 🍅" style="max-width:130px"> <span id="photoBox" class="row"></span></div>
@@ -62,6 +75,10 @@
     </div>
   </form>
 </div>
+<script src="js/data.js"></script>
 <script src="js/admin.js"></script>
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/account.js"></script>
+<script type="module" src="js/admin-bg.js"></script>
 </body>
 </html>

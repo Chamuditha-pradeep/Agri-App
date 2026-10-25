@@ -70,6 +70,8 @@
     return [...map.values()];
   }
 
+  window.AgriGetCrop = (id) => allCrops().find((c) => c.id === id);
+
   window.renderDashboard = (rec) => {
     const i = IDX[rec.language];
     const t = (k) => D[k][i];
@@ -91,7 +93,7 @@
       return `<div id="wx">${weatherHtml || `<p class="lead">${t('loading')}</p>`}</div>${soil}`;
     }
 
-    let openId = null, query = '';
+    let openId = null, query = '', prevBg = null;
     const pick = (arr) => (arr && (arr[i] || arr[2] || arr[0])) || '';
 
     function cropCard(c) {
@@ -101,7 +103,8 @@
         <div><b>${esc(pick(m.name))}</b> <small>· ${t('t' + (m.type || 'chemical'))}</small><p>${esc(pick(m.use))}</p></div></div>`).join('');
       const pic = okImg(c.photo) ? `<img class="cphoto" src="${c.photo}" alt="">` : '';
       return `<article class="crop">${pic}<header><span class="ic">${esc(c.icon || '🌱')}</span><div><h3>${esc(pick(c.name))}</h3>
-        <small>${esc(pick(c.season))} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div></header>${secs}
+        <small>${esc(pick(c.season))} · ${ok ? '✅ ' + t('suited') : '⚠️ ' + t('lessSuited')}</small></div>
+        <button class="btn small ai-open" data-id="${esc(c.id)}">🤖 AI</button></header>${secs}
         ${meds ? `<details><summary>💊 ${t('mTitle')}</summary>${meds}</details>` : ''}</article>`;
     }
     function listHtml() {
@@ -130,14 +133,19 @@
       body.innerHTML = tab === 'climate' ? climateView() : cropsView();
     }
     tabs.innerHTML = `<button data-tab="climate">${t('tabClimate')}</button><button data-tab="crops">${t('tabCrops')}</button>`;
-    tabs.onclick = (e) => { if (e.target.dataset.tab) draw(e.target.dataset.tab); };
+    tabs.onclick = (e) => { if (e.target.dataset.tab) { if (prevBg && e.target.dataset.tab !== 'crops') { window.setBackground(prevBg); prevBg = null; } draw(e.target.dataset.tab); } };
     body.oninput = (e) => {
       if (e.target.classList.contains('csearch')) { query = e.target.value; document.getElementById('clist').innerHTML = listHtml(); }
     };
     body.onclick = (e) => {
       const b = e.target.closest('.cbtn');
-      if (b) { openId = b.dataset.id; draw('crops'); window.scrollTo(0, 0); }
-      if (e.target.closest('.cback')) { openId = null; draw('crops'); }
+      if (b) {
+        openId = b.dataset.id;
+        const c = window.AgriGetCrop(openId);
+        if (c && okImg(c.photo) && window.setBackground) { if (!prevBg) prevBg = window.__bg; window.setBackground(c.photo); }
+        draw('crops'); window.scrollTo(0, 0);
+      }
+      if (e.target.closest('.cback')) { openId = null; if (prevBg) { window.setBackground(prevBg); prevBg = null; } draw('crops'); }
     };
     draw('climate');
 

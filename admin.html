@@ -7,42 +7,37 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     body { padding: 1.5rem 1rem 4rem; background: var(--forest); }
-    .wrap { max-width: 860px; margin: 0 auto; display: grid; gap: 1.2rem; }
+    .wrap { max-width: 900px; margin: 0 auto; display: grid; gap: 1.2rem; }
     .card { background: rgba(241,233,214,.1); border: 1px solid rgba(241,233,214,.25); border-radius: 1.2rem; padding: 1.2rem; }
     h1 { font-size: 1.5rem; } h2 { font-size: 1.15rem; margin: 0 0 .8rem; }
     fieldset { border: 1px solid rgba(241,233,214,.25); border-radius: .9rem; padding: .7rem; margin: 0 0 .8rem; display: grid; gap: .5rem; }
     legend { padding: 0 .4rem; font-weight: 600; }
-    input[type=text], textarea, .card select { width: 100%; font: inherit; color: var(--ink); background: var(--sand); border: 2px solid transparent; border-radius: .7rem; padding: .6rem .8rem; }
+    input[type=text], .card select { width: 100%; font: inherit; color: var(--ink); background: var(--sand); border: 2px solid transparent; border-radius: .7rem; padding: .6rem .8rem; }
     .card select { background-image: none; }
-    textarea { resize: vertical; }
     .row { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
-    .zones label { margin-right: 1rem; }
     .thumb { width: 90px; height: 70px; object-fit: cover; border-radius: .6rem; background: rgba(0,0,0,.25); }
-    .med { border: 1px dashed rgba(241,233,214,.4); border-radius: 1rem; padding: .8rem; margin-bottom: .8rem; }
     .item { display: flex; gap: .8rem; align-items: center; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid rgba(241,233,214,.2); }
-    .btn.small { padding: .4rem 1rem; font-size: .9rem; }
+    .btn.small { padding: .4rem 1rem; font-size: .9rem; margin: 0; }
     .btn.danger { background: #8a3b2e; border-color: #8a3b2e; }
+    .tabsx { display: flex; gap: .4rem; margin: .6rem 0 0; }
+    .tabsx button { font: inherit; color: var(--sand); background: rgba(241,233,214,.12); border: 0; border-radius: .7rem .7rem 0 0; padding: .5rem 1.1rem; cursor: pointer; }
+    .tabsx button.on { background: #fff; color: #222; font-weight: 600; }
+    #tb { display: flex; flex-wrap: wrap; gap: .3rem; background: #e9e2cf; padding: .4rem; border-radius: 0 .7rem 0 0; }
+    #tb button, #tb label { font: inherit; background: #fff; color: #222; border: 1px solid #c9bfa5; border-radius: .4rem; padding: .25rem .6rem; cursor: pointer; }
+    #ed { min-height: 360px; background: #fff; color: #222; border-radius: 0 0 .7rem .7rem; padding: 1.2rem 1.4rem; line-height: 1.7; outline: none; }
+    #ed img { max-width: 100%; height: auto; border-radius: .6rem; cursor: pointer; }
+    #ed h2 { color: #2f5d3a; border-left: 4px solid #4f7a43; padding-left: .5rem; }
     a { color: var(--leaf); }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>🌿 Admin – බෝග සහ බෙහෙත් එකතු කිරීම</h1>
-  <p class="note">මෙහි සුරකින දත්ත ඔයාගේ browser එකේ පමණක් තියෙනවා. සියලු ගොවීන්ට පෙන්වීමට <b>Export</b> කර ලැබෙන <code>crops.json</code> එක project එකේ <code>data/</code> folder එකට දමන්න.</p>
-
-  <div class="card">
-    <h2>සුරකින ලද බෝග (Saved crops)</h2>
-    <div id="list"></div>
-    <div class="row" style="margin-top:.8rem">
-      <button class="btn small" id="export">⬇ Export crops.json</button>
-      <label class="btn small ghost" style="cursor:pointer">⬆ Import<input type="file" id="import" accept=".json" hidden></label>
-      <a href="index.html">← App</a>
-    </div>
-  </div>
+  <h1>🌿 Admin – පසුබිම්, බෝග සහ බෙහෙත්</h1>
+  <p class="note">උඩ දකුණේ <b>ඇතුල් වන්න</b> එබුවාම ඔයාගේ admin ගිණුමෙන් login වෙන්න. <a href="index.html">← App එකට</a></p>
 
   <div class="card" id="bgcard">
     <h2>🖼 පසුබිම් පින්තූර (Background photos)</h2>
-    <p class="note" id="bgmsg">Admin ලෙස ඇතුල් වන්න (උඩ දකුණේ). Firestore → users → ඔයාගේ document එකේ <code>role</code> අගය <b>admin</b> කරන්න.</p>
+    <p class="note" id="bgmsg">Admin ලෙස ඇතුල් වන්න. Firestore → users → ඔයාගේ document එකේ <code>role</code> අගය <b>admin</b> කරන්න.</p>
     <div id="bgtools" hidden>
       <div class="row">
         <select id="bglevel"><option value="province">පළාත / Province</option><option value="district">දිස්ත්‍රික්කය / District</option><option value="ds">ආයතනය / Local authority</option></select>
@@ -53,32 +48,51 @@
     </div>
   </div>
 
-  <form class="card" id="form" autocomplete="off">
-    <h2 id="formTitle">අලුත් බෝගයක් (New crop)</h2>
-    <div class="row"><input type="text" id="icon" placeholder="Emoji 🍅" style="max-width:130px"> <span id="photoBox" class="row"></span></div>
-    <div id="fields"></div>
-    <fieldset class="zones"><legend>සුදුසු කලාප (Suited zones)</legend>
-      <div class="row">
-        <label><input type="checkbox" value="WET"> තෙත් / Wet</label>
-        <label><input type="checkbox" value="INT"> අතරමැදි / Intermediate</label>
-        <label><input type="checkbox" value="DRY"> වියළි / Dry</label>
-      </div>
-    </fieldset>
-    <h2>බෙහෙත් / පොහොර (Medicines &amp; products)</h2>
-    <div id="meds"></div>
-    <div class="row">
-      <button type="button" class="btn small ghost" id="addMed">+ බෙහෙතක් එකතු කරන්න</button>
+  <div class="card" id="cropcard" hidden>
+    <h2>🌾 බෝග (Crops)</h2>
+    <div id="crlist"></div>
+    <div class="row" style="margin-top:.8rem">
+      <button class="btn small" id="crnew" type="button">+ අලුත් බෝගයක්</button>
+      <button class="btn small ghost" id="crimport" type="button">⬇ පොල් (coconut) import කරන්න</button>
     </div>
-    <div class="row" style="margin-top:1rem">
-      <button class="btn" type="submit">සුරකින්න (Save)</button>
-      <button class="btn ghost" type="button" id="reset">Clear form</button>
+  </div>
+
+  <form class="card" id="crform" hidden autocomplete="off">
+    <h2 id="crtitle">අලුත් බෝගයක්</h2>
+    <div class="row"><input type="text" id="cricon" placeholder="Emoji 🥥" style="max-width:120px">
+      <label class="btn small ghost" style="cursor:pointer">🖼 බෝගයේ පින්තූරය (පසුබිම)<input type="file" id="crphoto" accept="image/*" hidden></label>
+      <img id="crprev" class="thumb" hidden alt=""></div>
+    <fieldset><legend>නම / Name (සිංහල · தமிழ் · English)</legend>
+      <input type="text" id="crn0" placeholder="සිංහල"><input type="text" id="crn1" placeholder="தமிழ்"><input type="text" id="crn2" placeholder="English (required)"></fieldset>
+    <fieldset><legend>කන්නය / Season</legend>
+      <input type="text" id="crs0" placeholder="සිංහල"><input type="text" id="crs1" placeholder="தமிழ்"><input type="text" id="crs2" placeholder="English"></fieldset>
+    <fieldset><legend>සුදුසු කලාප / Suited zones</legend>
+      <div class="row"><label><input type="checkbox" class="zchk" value="WET"> Wet</label>
+      <label><input type="checkbox" class="zchk" value="INT"> Intermediate</label><label><input type="checkbox" class="zchk" value="DRY"> Dry</label></div></fieldset>
+
+    <h2>📄 බෝගයේ පිටුව (Word sheet එක මෙන් ලියන්න)</h2>
+    <div class="tabsx" id="crtabs"><button type="button" data-l="si" class="on">සිංහල</button><button type="button" data-l="ta">தமிழ்</button><button type="button" data-l="en">English</button></div>
+    <div id="tb">
+      <button type="button" data-cmd="formatBlock" data-arg="h2">Heading</button>
+      <button type="button" data-cmd="formatBlock" data-arg="h3">Sub</button>
+      <button type="button" data-cmd="formatBlock" data-arg="p">Text</button>
+      <button type="button" data-cmd="bold"><b>B</b></button><button type="button" data-cmd="italic"><i>I</i></button><button type="button" data-cmd="underline"><u>U</u></button>
+      <button type="button" data-cmd="insertUnorderedList">• List</button><button type="button" data-cmd="insertOrderedList">1. List</button>
+      <button type="button" data-cmd="justifyLeft">⬅</button><button type="button" data-cmd="justifyCenter">⬌</button>
+      <label>🎨 <input type="color" id="tcolor" value="#2f5d3a" style="width:26px;height:20px;border:0;padding:0"></label>
+      <label>📷 පින්තූරය <input type="file" id="timg" accept="image/*" hidden></label>
+      <button type="button" data-cmd="removeFormat">✖ Clear</button>
     </div>
+    <div id="ed" contenteditable="true"></div>
+    <p class="note">පින්තූරයක් එබුවාම එහි ප්‍රමාණය (30% / 60% / 100%) මාරු වෙනවා. ඕනෑම තැනක cursor තියලා 📷 එබුවාම පින්තූරය එතනට වැටෙනවා. භාෂා 3 ටම වෙන වෙනම ලියන්න.</p>
+    <div class="row" style="margin-top:1rem"><button class="btn" type="submit">සුරකින්න (Save)</button><button class="btn ghost" type="button" id="crcancel">Cancel</button></div>
   </form>
 </div>
 <script src="js/data.js"></script>
-<script src="js/admin.js"></script>
+<script src="js/sheet.js"></script>
 <script type="module" src="js/firebase.js"></script>
 <script type="module" src="js/account.js"></script>
 <script type="module" src="js/admin-bg.js"></script>
+<script type="module" src="js/admin-crops.js"></script>
 </body>
 </html>

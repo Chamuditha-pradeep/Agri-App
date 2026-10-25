@@ -35,12 +35,14 @@ function buildSystem(crop) {
   let where = '';
   try { const r = JSON.parse(localStorage.getItem('agriSetup')); if (r) where = `${r.ds.en}, ${r.district.en}, ${r.province.en}`; } catch (e) { /* none */ }
   const info = SECTIONS.map((k) => pickText(crop[k])).filter(Boolean).join('\n').slice(0, 2500);
+  const page = document.getElementById('cpage');
+  const sheet = page ? page.innerText.slice(0, 3000) : '';
   const meds = (crop.medicines || []).map((m) => pickText(m.name)).filter(Boolean).join(', ');
   return `You are a friendly agricultural assistant for Sri Lankan farmers. The farmer is asking about the crop: ${crop.name.filter(Boolean).join(' / ')}. ` +
     `Farmer's area: ${where || 'Sri Lanka'}. Always reply in ${LANGNAME[lang()]}, in short, practical steps. ` +
     `If a photo is given: describe what you see, list the most likely problems (disease, pest or nutrient deficiency) and how sure you are, then give natural/local control first and chemical options second. ` +
     `Never invent doses. For pesticides, tell the farmer to use only products registered by the Department of Agriculture (Sri Lanka), follow the label and wear protective gear. ` +
-    `If unsure, say so and advise visiting the nearest agriculture extension officer. Reference info from our database:\n${info}\nProducts listed: ${meds}`;
+    `If unsure, say so and advise visiting the nearest agriculture extension officer. Reference info from our database:\n${info}\n${sheet}\nProducts listed: ${meds}`;
 }
 
 function shrink(file) {
@@ -101,7 +103,7 @@ function openChat(id) {
       const r = await chat.sendMessage(parts);
       wait.innerHTML = fmt(r.response.text());
     } catch (ex) {
-      wait.innerHTML = `${esc(T('err'))}<br><small>${esc(ex.code || ex.message || '')}</small>`;
+      wait.innerHTML = `${esc(T('err'))}<br><small>${esc((ex.code || '') + ' ' + String(ex.message || '').slice(0, 300))}</small>`;
     }
     btn.disabled = false; msgs.scrollTop = msgs.scrollHeight;
   };

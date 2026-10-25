@@ -283,3 +283,27 @@ details p { margin-top: .5rem; opacity: .92; }
 .pcard .dot { width: .9rem; height: .9rem; border-radius: 50%; background: var(--sand); flex: none; opacity: .7; }
 .pcard.on { border-color: var(--sand); box-shadow: 0 0 0 3px rgba(241,233,214,.35), 0 10px 24px rgba(0,0,0,.3); }
 .pcard.on .dot { opacity: 1; box-shadow: 0 0 0 4px rgba(241,233,214,.35); }
+
+/* ---------- Word-like crop pages ---------- */
+.sheet { line-height: 1.75; }
+.sheet h2 { font-size: 1.25rem; margin: 1.2rem 0 .4rem; padding-left: .6rem; border-left: 4px solid var(--accent, var(--leaf)); }
+.sheet h3 { font-size: 1.05rem; margin: 1rem 0 .3rem; }
+.sheet img { max-width: 100%; height: auto; border-radius: .9rem; margin: .5rem 0; display: block; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+.sheet ul, .sheet ol { padding-left: 1.4rem; }
+
+/* ---------- Community feed ---------- */
+.comp, .post { background: rgba(241,233,214,.1); border: 1px solid rgba(241,233,214,.22); border-radius: 1.1rem; padding: 1rem; margin-bottom: 1rem; }
+.comp textarea, .cform input { width: 100%; font: inherit; color: var(--ink); background: var(--sand); border: 2px solid transparent; border-radius: .8rem; padding: .7rem .9rem; }
+.comp .row, .post .row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .6rem; }
+.comp select { width: auto; font: inherit; border-radius: .7rem; padding: .4rem .6rem; background-image: none; color: var(--ink); background-color: var(--sand); }
+.post .who { display: flex; gap: .7rem; align-items: center; }
+.av { width: 2.4rem; height: 2.4rem; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; flex: none; }
+.post small { opacity: .8; }
+.kind { font-size: .75rem; padding: .15rem .6rem; border-radius: 999px; color: #fff; }
+.post .ptext { margin: .7rem 0; white-space: pre-wrap; word-wrap: break-word; }
+.post img.pimg { width: 100%; max-height: 420px; object-fit: cover; border-radius: .9rem; }
+.cmt { padding: .45rem .7rem; border-radius: .8rem; background: rgba(241,233,214,.08); margin-top: .4rem; font-size: .92rem; }
+.cmt b { margin-right: .4rem; }
+.cmt button { background: none; border: 0; color: var(--leaf); cursor: pointer; float: right; }
+.cform { display: flex; gap: .5rem; margin-top: .5rem; }
+.linkbtn { background: none; border: 0; color: var(--leaf); cursor: pointer; font: inherit; padding: 0; }

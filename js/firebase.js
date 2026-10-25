@@ -1,8 +1,9 @@
 // Firebase setup (browser ES module via CDN). Exposes window.AgriFB for the rest of the app.
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app-check.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile }
   from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, collection, serverTimestamp }
+import { getFirestore, doc, setDoc, getDoc, getDocs, deleteDoc, addDoc, query, orderBy, limit, where, collection, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -15,6 +16,17 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// App Check (required by Firebase AI Logic). On localhost a debug token is printed in the browser console
+// (F12 > Console): register it in Firebase console > App Check > your web app > Manage debug tokens.
+// For the real website, paste your reCAPTCHA Enterprise site key below.
+const RECAPTCHA_SITE_KEY = '';
+const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
+if (isLocal) self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+if (isLocal || RECAPTCHA_SITE_KEY) {
+  try { initializeAppCheck(app, { provider: new ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY || 'debug-only'), isTokenAutoRefreshEnabled: true }); }
+  catch (e) { console.warn('App Check init failed', e); }
+}
 const auth = getAuth(app);
 const db = getFirestore(app);
 
@@ -49,7 +61,32 @@ window.AgriFB.bg = {
     return null;
   }
 };
+
+// Crops: meta in `crops`, big content (background photo, Word-like pages) in `cropPages`
+window.AgriFB.crops = {
+  async list() { const q = await getDocs(collection(db, 'crops')); return q.docs.map((d) => d.data()); },
+  save: (c) => setDoc(doc(db, 'crops', c.id), c),
+  async remove(id) {
+    await deleteDoc(doc(db, 'crops', id));
+    for (const k of ['bg', 'si', 'ta', 'en']) { try { await deleteDoc(doc(db, 'cropPages', id + '__' + k)); } catch (e) { /* ignore */ } }
+  },
+  async page(id, k) { try { const d = await getDoc(doc(db, 'cropPages', id + '__' + k)); return d.exists() ? d.data().data : null; } catch (e) { return null; } },
+  setPage: (id, k, data) => setDoc(doc(db, 'cropPages', id + '__' + k), { data })
+};
 window.dispatchEvent(new Event('agri-ready'));
+
+// Community: posts (feed) and comments (on posts and on crops, target = 'post:<id>' | 'crop:<id>')
+window.AgriFB.community = {
+  addPost(p) { const u = window.AgriFB.user; return addDoc(collection(db, 'posts'), { uid: u.uid, name: u.name, role: u.role, text: p.text, photo: p.photo || '', kind: p.kind || 'general', crop: p.crop || '', createdAt: serverTimestamp() }); },
+  async posts() { const q = await getDocs(query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(30))); return q.docs.map((d) => ({ id: d.id, ...d.data() })); },
+  removePost: (id) => deleteDoc(doc(db, 'posts', id)),
+  addComment(target, text) { const u = window.AgriFB.user; return addDoc(collection(db, 'comments'), { target, uid: u.uid, name: u.name, text, createdAt: serverTimestamp() }); },
+  async comments(target) {
+    const q = await getDocs(query(collection(db, 'comments'), where('target', '==', target), limit(100)));
+    return q.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => ((a.createdAt && a.createdAt.seconds) || 0) - ((b.createdAt && b.createdAt.seconds) || 0));
+  },
+  removeComment: (id) => deleteDoc(doc(db, 'comments', id))
+};
 
 onAuthStateChanged(auth, async (u) => {
   let profile = null;

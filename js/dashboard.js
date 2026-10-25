@@ -28,6 +28,7 @@
     noCrops: ['තවම බෝග එකතු කර නැත.', 'இன்னும் பயிர்கள் சேர்க்கப்படவில்லை.', 'No crops added yet.'],
     noResults: ['ප්‍රතිඵල නැත.', 'முடிவுகள் இல்லை.', 'No results.'],
     back: ['← ආපසු', '← பின்செல்', '← Back'],
+    tabComm: ['ගම් පිටුව', 'சமூகம்', 'Community'],
     mTitle: ['බෙහෙත් සහ ද්‍රව්‍ය', 'மருந்துகள் & பொருட்கள்', 'Medicines & products'],
     tchemical: ['රසායනික', 'இரசாயன', 'Chemical'],
     torganic: ['දේශීය / කාබනික', 'இயற்கை / சேதன', 'Natural / organic'],
@@ -57,7 +58,13 @@
 
   const esc = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const okImg = (u) => typeof u === 'string' && (u.startsWith('data:image/') || u.startsWith('assets/') || u.startsWith('data/'));
-  let remote = [];
+  let remote = [], fsCrops = [];
+  function loadFs() {
+    const f = window.AgriFB && window.AgriFB.crops;
+    if (f) f.list().then((l) => { fsCrops = l.map((c) => ({ ...c, fs: true, zones: c.zones || [] })); if (window.__redrawCrops) window.__redrawCrops(); }).catch(() => {});
+  }
+  window.addEventListener('agri-ready', loadFs);
+  loadFs();
   fetch('data/crops.json').then((r) => (r.ok ? r.json() : [])).then((j) => {
     remote = Array.isArray(j) ? j : [];
     if (window.__redrawCrops) window.__redrawCrops();
@@ -66,7 +73,7 @@
     let local = [];
     try { local = JSON.parse(localStorage.getItem('agriCustomCrops')) || []; } catch (e) { /* ignore */ }
     const map = new Map();
-    [...AGRI_CROPS, ...remote, ...local].forEach((c) => c && c.id && map.set(c.id, c));
+    [...AGRI_CROPS, ...remote, ...local, ...fsCrops].forEach((c) => c && c.id && map.set(c.id, c));
     return [...map.values()];
   }
 
@@ -98,7 +105,7 @@
 
     function cropCard(c) {
       const ok = (c.zones || []).includes(zoneKey);
-      const secs = SECTIONS.filter((k) => pick(c[k])).map((k) => `<details><summary>${t(k)}</summary><p>${esc(pick(c[k]))}</p></details>`).join('');
+      const secs = c.fs ? '<div class="sheet" id="cpage"></div>' : SECTIONS.filter((k) => pick(c[k])).map((k) => `<details><summary>${t(k)}</summary><p>${esc(pick(c[k]))}</p></details>`).join('');
       const meds = (c.medicines || []).map((m) => `<div class="mrow">${okImg(m.photo) ? `<img src="${m.photo}" alt="">` : ''}
         <div><b>${esc(pick(m.name))}</b> <small>· ${t('t' + (m.type || 'chemical'))}</small><p>${esc(pick(m.use))}</p></div></div>`).join('');
       const pic = okImg(c.photo) ? `<img class="cphoto" src="${c.photo}" alt="">` : '';
@@ -113,13 +120,22 @@
       const q = query.trim().toLowerCase();
       const hit = crops.filter((c) => !q || (c.name || []).some((n) => String(n).toLowerCase().includes(q)));
       if (!hit.length) return `<p class="note">${t('noResults')}</p>`;
-      return `<div class="cgrid">${hit.map((c) => `<button class="cbtn" data-id="${esc(c.id)}">${okImg(c.photo)
-        ? `<img src="${c.photo}" alt="">` : `<span class="ic">${esc(c.icon || '🌱')}</span>`}<span>${esc(pick(c.name))}</span></button>`).join('')}</div>`;
+      return `<div class="cgrid">${hit.map((c) => `<button class="cbtn" data-id="${esc(c.id)}">${okImg(c.thumb || c.photo) ? `<img src="${c.thumb || c.photo}" alt="">` : `<span class="ic">${esc(c.icon || '🌱')}</span>`}<span>${esc(pick(c.name))}</span></button>`).join('')}</div>`;
+    }
+    async function loadPage(c) {
+      const f = window.AgriFB && window.AgriFB.crops;
+      if (!f) return;
+      let html = null;
+      for (const k of [rec.language, 'en', 'si', 'ta']) { html = await f.page(c.id, k); if (html) break; }
+      const el = document.getElementById('cpage');
+      if (el && openId === c.id) el.innerHTML = html ? window.AgriSheet.clean(html) : '';
+      const bg = await f.page(c.id, 'bg');
+      if (bg && openId === c.id && window.setBackground) { if (!prevBg) prevBg = window.__bg; window.setBackground(bg); }
     }
     function cropsView() {
       if (openId) {
         const c = allCrops().find((x) => x.id === openId);
-        if (c) return `<button class="btn ghost small cback">${t('back')}</button>${cropCard(c)}<p class="note">${t('caution')}</p>`;
+        if (c) return `<button class="btn ghost small cback">${t('back')}</button>${cropCard(c)}<p class="note">${t('caution')}</p><div id="ccom"></div>`;
         openId = null;
       }
       return `<input type="search" class="csearch" placeholder="${t('search')}" value="${esc(query)}"><div id="clist">${listHtml()}</div>`;
@@ -130,9 +146,10 @@
     function draw(tab) {
       tabNow = tab;
       [...tabs.children].forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
-      body.innerHTML = tab === 'climate' ? climateView() : cropsView();
+      body.innerHTML = tab === 'climate' ? climateView() : tab === 'crops' ? cropsView() : '<div id="comm"></div>';
+      if (tab === 'community' && window.AgriCommunity) window.AgriCommunity.mount(document.getElementById('comm'));
     }
-    tabs.innerHTML = `<button data-tab="climate">${t('tabClimate')}</button><button data-tab="crops">${t('tabCrops')}</button>`;
+    tabs.innerHTML = `<button data-tab="climate">${t('tabClimate')}</button><button data-tab="crops">${t('tabCrops')}</button><button data-tab="community">${t('tabComm')}</button>`;
     tabs.onclick = (e) => { if (e.target.dataset.tab) { if (prevBg && e.target.dataset.tab !== 'crops') { window.setBackground(prevBg); prevBg = null; } draw(e.target.dataset.tab); } };
     body.oninput = (e) => {
       if (e.target.classList.contains('csearch')) { query = e.target.value; document.getElementById('clist').innerHTML = listHtml(); }
@@ -144,6 +161,8 @@
         const c = window.AgriGetCrop(openId);
         if (c && okImg(c.photo) && window.setBackground) { if (!prevBg) prevBg = window.__bg; window.setBackground(c.photo); }
         draw('crops'); window.scrollTo(0, 0);
+        if (c && c.fs) loadPage(c);
+        if (window.AgriCommunity) window.AgriCommunity.mountComments(document.getElementById('ccom'), 'crop:' + openId);
       }
       if (e.target.closest('.cback')) { openId = null; if (prevBg) { window.setBackground(prevBg); prevBg = null; } draw('crops'); }
     };

@@ -21,6 +21,24 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Crops and their Word-like pages: everyone reads, admins write
+    match /crops/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /cropPages/{id} { allow read: if true; allow write: if isAdmin(); }
+
+    // Community feed + comments: logged-in users read; owners (or admin) delete
+    match /posts/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.text.size() <= 2000 && request.resource.data.photo.size() < 600000;
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+    match /comments/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.text.size() <= 1000;
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
     match /{document=**} { allow read, write: if false; }
   }
 }
